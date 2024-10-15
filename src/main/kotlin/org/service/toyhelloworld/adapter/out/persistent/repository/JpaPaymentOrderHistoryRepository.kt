@@ -1,0 +1,9 @@
+package org.service.toyhelloworld.adapter.out.persistent.repository
+
+import org.service.toyhelloworld.adapter.out.persistent.entity.JpaPaymentOrderHistoryEntity
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.stereotype.Repository
+
+@Repository
+class JpaPaymentOrderHistoryRepository : PaymentOrderHistoryRepository
+interface SpringDataJpaPaymentOrderHistoryRepository : JpaRepository<JpaPaymentOrderHistoryEntity, Long>
