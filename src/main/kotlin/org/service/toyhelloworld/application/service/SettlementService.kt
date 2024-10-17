@@ -1,7 +1,7 @@
 package org.service.toyhelloworld.application.service
 
 import org.service.toyhelloworld.application.port.`in`.SettlementUseCase
-import org.service.toyhelloworld.application.port.out.DuplicateMessageFilterPort
+import org.service.toyhelloworld.application.port.out.DuplicateWalletMessageFilterPort
 import org.service.toyhelloworld.application.port.out.LoadPaymentOrderPort
 import org.service.toyhelloworld.application.port.out.LoadWalletPort
 import org.service.toyhelloworld.application.port.out.SaveWalletPort
@@ -12,13 +12,13 @@ import org.service.toyhelloworld.domain.wallet.*
 
 @UseCase
 class SettlementService(
-    private val duplicateMessageFilterPort: DuplicateMessageFilterPort,
+    private val duplicateWalletMessageFilterPort: DuplicateWalletMessageFilterPort,
     private val loadPaymentOrderPort: LoadPaymentOrderPort,
     private val loadWalletPort: LoadWalletPort,
     private val saveWalletPort: SaveWalletPort,
 ) : SettlementUseCase {
     override fun processSettlement(paymentEventMessage: PaymentEventMessage): WalletEventMessage {
-        if (duplicateMessageFilterPort.isAlreadyProcess(paymentEventMessage)) {
+        if (duplicateWalletMessageFilterPort.isAlreadyProcess(paymentEventMessage)) {
             return createWalletEventMessage(paymentEventMessage)
         }
         val paymentOrders = loadPaymentOrderPort.getPaymentOrders(paymentEventMessage.orderId())

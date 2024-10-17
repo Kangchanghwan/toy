@@ -17,7 +17,9 @@ class WalletServicePaymentEventMessageHandler(
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     fun consume(paymentEventMessage: PaymentEventMessage){
-        applicationEventPublisher.publishEvent(settlementUseCase.processSettlement(paymentEventMessage))
+        settlementUseCase.processSettlement(paymentEventMessage).let {
+            applicationEventPublisher.publishEvent(it)
+        }
     }
 
 }

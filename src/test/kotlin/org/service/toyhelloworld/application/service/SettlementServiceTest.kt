@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import org.service.toyhelloworld.adapter.out.persistent.entity.JpaWalletEntity
 import org.service.toyhelloworld.adapter.out.persistent.repository.SpringDataJpaWalletRepository
 import org.service.toyhelloworld.adapter.out.persistent.repository.SpringDataJpaWalletTransactionRepository
-import org.service.toyhelloworld.application.port.out.DuplicateMessageFilterPort
+import org.service.toyhelloworld.application.port.out.DuplicateWalletMessageFilterPort
 import org.service.toyhelloworld.application.port.out.LoadPaymentOrderPort
 import org.service.toyhelloworld.application.port.out.LoadWalletPort
 import org.service.toyhelloworld.application.port.out.SaveWalletPort
@@ -25,7 +25,7 @@ import java.util.*
 @SpringBootTest
 @ActiveProfiles("local")
 class SettlementServiceTest(
-    @Autowired private val duplicateMessageFilterPort: DuplicateMessageFilterPort,
+    @Autowired private val duplicateWalletMessageFilterPort: DuplicateWalletMessageFilterPort,
     @Autowired private val loadWalletPort: LoadWalletPort,
     @Autowired private val saveWallerPort: SaveWalletPort,
     @Autowired private val springDataJpaWalletRepository: SpringDataJpaWalletRepository,
@@ -80,7 +80,7 @@ class SettlementServiceTest(
         )
 
         val settlementService = SettlementService(
-            duplicateMessageFilterPort = duplicateMessageFilterPort,
+            duplicateWalletMessageFilterPort = duplicateWalletMessageFilterPort,
             loadWalletPort = loadWalletPort,
             loadPaymentOrderPort = loadPaymentOrderPort,
             saveWalletPort = saveWallerPort
@@ -139,7 +139,7 @@ class SettlementServiceTest(
         )
 
         val settlementService = SettlementService(
-            duplicateMessageFilterPort = duplicateMessageFilterPort,
+            duplicateWalletMessageFilterPort = duplicateWalletMessageFilterPort,
             loadWalletPort = loadWalletPort,
             loadPaymentOrderPort = loadPaymentOrderPort,
             saveWalletPort = saveWallerPort
