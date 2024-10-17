@@ -10,10 +10,7 @@ import org.service.toyhelloworld.adapter.out.persistent.exception.PaymentAlready
 import org.service.toyhelloworld.adapter.out.persistent.exception.PaymentValidationException
 import org.service.toyhelloworld.application.port.out.PaymentStatusUpdateCommand
 import org.service.toyhelloworld.common.objectMapper
-import org.service.toyhelloworld.domain.payment.PaymentEventMessage
-import org.service.toyhelloworld.domain.payment.PaymentEventMessageType
-import org.service.toyhelloworld.domain.payment.PaymentOrder
-import org.service.toyhelloworld.domain.payment.PaymentStatus
+import org.service.toyhelloworld.domain.payment.*
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
@@ -57,6 +54,14 @@ class JpaPaymentOrderRepository(
     override fun getPaymentOrders(orderId: String): List<PaymentOrder> {
         return springDataJpaPaymentOrderRepository.findByOrderId(orderId)
             .map { jpaPaymentOrderMapper.mapToDomainEntity(it) }
+    }
+
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW)
+    override fun complete(paymentEvent: PaymentEvent) {
+        when {
+            paymentEvent.isWalletUpdateDone() -> springDataJpaPaymentOrderRepository.updatePaymentOrderWalletUpdatedComplete(paymentEvent.orderId)
+            paymentEvent.isLedgerUpdateDone() -> springDataJpaPaymentOrderRepository.updatePaymentOrderLedgerUpdatedComplete(paymentEvent.orderId)
+        }
     }
 
     private fun insertPaymentOrderHistories(
@@ -162,6 +167,14 @@ interface SpringDataJpaPaymentOrderRepository : JpaRepository<JpaPaymentOrderEnt
 
     @Query("SELECT SUM(e.amount) from JpaPaymentOrderEntity e WHERE e.orderId=:orderId")
     fun selectPaymentOrderTotalAmount(orderId: String): Long
+
+    @Modifying
+    @Query("UPDATE JpaPaymentOrderEntity e SET e.walletUpdated = TRUE WHERE e.orderId=:orderId")
+    fun updatePaymentOrderWalletUpdatedComplete(orderId: String)
+
+    @Modifying
+    @Query("UPDATE JpaPaymentOrderEntity e SET e.ledgerUpdated = TRUE WHERE e.orderId=:orderId")
+    fun updatePaymentOrderLedgerUpdatedComplete(orderId: String)
 
     fun findByOrderId(orderId: String): List<JpaPaymentOrderEntity>
 }

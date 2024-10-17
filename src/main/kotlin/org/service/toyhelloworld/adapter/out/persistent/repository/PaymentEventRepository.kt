@@ -4,4 +4,5 @@ import org.service.toyhelloworld.domain.payment.PaymentEvent
 
 interface PaymentEventRepository {
     fun save(paymentEvent: PaymentEvent)
+    fun getPaymentEvent(orderId: String): PaymentEvent
 }

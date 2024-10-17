@@ -1,5 +1,6 @@
 package org.service.toyhelloworld.adapter.out.persistent.repository
 
+import jakarta.persistence.EntityNotFoundException
 import jakarta.transaction.Transactional
 import org.service.toyhelloworld.adapter.out.persistent.entity.JpaPaymentEventEntity
 import org.service.toyhelloworld.adapter.out.persistent.entity.JpaPaymentEventMapper
@@ -25,6 +26,15 @@ class JpaPaymentEventRepository(
         val paymentEventEntity = insertPaymentEvent(paymentEvent)
         insertPaymentOrders(paymentEvent, paymentEventEntity)
     }
+
+    override fun getPaymentEvent(orderId: String): PaymentEvent {
+        val paymentEvent= springDataJpaPaymentEventRepository.findByOrderId(orderId) ?: throw EntityNotFoundException()
+        val paymentOrders = springDataJpaPaymentOrderRepository.findByOrderId(orderId)
+
+        return jpaPaymentEventMapper.mapToDomainEntity(paymentEvent, paymentOrders)
+    }
+
+
 
     private fun insertPaymentOrders(
         paymentEvent: PaymentEvent,
@@ -70,4 +80,6 @@ interface SpringDataJpaPaymentEventRepository : JpaRepository<JpaPaymentEventEnt
         type: PaymentType,
         orderId: String,
     )
+
+    fun findByOrderId(orderId: String): JpaPaymentEventEntity?
 }

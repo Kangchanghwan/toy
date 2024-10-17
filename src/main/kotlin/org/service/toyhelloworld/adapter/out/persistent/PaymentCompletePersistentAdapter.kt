@@ -11,7 +11,7 @@ import org.service.toyhelloworld.domain.payment.PaymentOrder
 class PaymentCompletePersistentAdapter(
     private val paymentEventRepository: PaymentEventRepository,
     private val paymentOrderRepository: PaymentOrderRepository,
-) : SavePaymentPort, PaymentStatusUpdatePort, PaymentValidationPort,LoadPaymentOrderPort {
+) : SavePaymentPort, PaymentStatusUpdatePort, PaymentValidationPort,LoadPaymentOrderPort, LoadPaymentPort, PaymentCompletePort{
     override fun save(paymentEvent: PaymentEvent) {
         paymentEventRepository.save(paymentEvent)
     }
@@ -30,5 +30,13 @@ class PaymentCompletePersistentAdapter(
 
     override fun getPaymentOrders(orderId: String): List<PaymentOrder> {
         return paymentOrderRepository.getPaymentOrders(orderId)
+    }
+
+    override fun getPayment(orderId: String): PaymentEvent {
+        return paymentEventRepository.getPaymentEvent(orderId)
+    }
+
+    override fun complete(paymentEvent: PaymentEvent) {
+        return paymentOrderRepository.complete(paymentEvent)
     }
 }
