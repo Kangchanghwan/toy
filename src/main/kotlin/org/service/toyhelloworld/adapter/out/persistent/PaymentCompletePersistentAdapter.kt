@@ -5,12 +5,13 @@ import org.service.toyhelloworld.adapter.out.persistent.repository.PaymentOrderR
 import org.service.toyhelloworld.application.port.out.*
 import org.service.toyhelloworld.common.PersistentAdapter
 import org.service.toyhelloworld.domain.payment.PaymentEvent
+import org.service.toyhelloworld.domain.payment.PaymentOrder
 
 @PersistentAdapter
 class PaymentCompletePersistentAdapter(
     private val paymentEventRepository: PaymentEventRepository,
     private val paymentOrderRepository: PaymentOrderRepository,
-) : SavePaymentPort, PaymentStatusUpdatePort, PaymentValidationPort {
+) : SavePaymentPort, PaymentStatusUpdatePort, PaymentValidationPort,LoadPaymentOrderPort {
     override fun save(paymentEvent: PaymentEvent) {
         paymentEventRepository.save(paymentEvent)
     }
@@ -25,5 +26,9 @@ class PaymentCompletePersistentAdapter(
 
     override fun isValid(orderId: String, amount: Long) {
         paymentOrderRepository.isValid(orderId, amount)
+    }
+
+    override fun getPaymentOrders(orderId: String): List<PaymentOrder> {
+        return paymentOrderRepository.getPaymentOrders(orderId)
     }
 }

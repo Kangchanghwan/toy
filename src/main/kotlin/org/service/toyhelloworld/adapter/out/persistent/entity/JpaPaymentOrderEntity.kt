@@ -5,8 +5,8 @@ import org.service.toyhelloworld.domain.payment.PaymentStatus
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
-@Table(name = "payment_orders")
 @Entity
+@Table(name = "payment_orders")
 class JpaPaymentOrderEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

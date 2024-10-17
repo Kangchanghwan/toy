@@ -1,6 +1,6 @@
 package org.service.toyhelloworld.adapter.`in`.web.view
 
-import org.service.toyhelloworld.adapter.`in`.request.CheckOutRequest
+import org.service.toyhelloworld.adapter.`in`.web.view.request.CheckOutRequest
 import org.service.toyhelloworld.application.port.`in`.CheckOutCommand
 import org.service.toyhelloworld.application.port.`in`.CheckOutUseCase
 import org.service.toyhelloworld.common.IdempotencyCreator
@@ -8,7 +8,6 @@ import org.service.toyhelloworld.common.WebAdapter
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
-import java.util.UUID
 
 @Controller
 @WebAdapter

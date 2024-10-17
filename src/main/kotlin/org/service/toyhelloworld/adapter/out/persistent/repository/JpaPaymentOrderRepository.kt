@@ -3,11 +3,18 @@ package org.service.toyhelloworld.adapter.out.persistent.repository
 import jakarta.persistence.Tuple
 import jakarta.transaction.Transactional
 import org.service.toyhelloworld.adapter.out.persistent.entity.JpaPaymentOrderEntity
+import org.service.toyhelloworld.adapter.out.persistent.entity.JpaOutBoxEntity
 import org.service.toyhelloworld.adapter.out.persistent.entity.JpaPaymentOrderHistoryEntity
+import org.service.toyhelloworld.adapter.out.persistent.entity.JpaPaymentOrderMapper
 import org.service.toyhelloworld.adapter.out.persistent.exception.PaymentAlreadyProcessedException
 import org.service.toyhelloworld.adapter.out.persistent.exception.PaymentValidationException
 import org.service.toyhelloworld.application.port.out.PaymentStatusUpdateCommand
+import org.service.toyhelloworld.common.objectMapper
+import org.service.toyhelloworld.domain.payment.PaymentEventMessage
+import org.service.toyhelloworld.domain.payment.PaymentEventMessageType
+import org.service.toyhelloworld.domain.payment.PaymentOrder
 import org.service.toyhelloworld.domain.payment.PaymentStatus
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
@@ -18,6 +25,9 @@ class JpaPaymentOrderRepository(
     private val springDataJpaPaymentOrderRepository: SpringDataJpaPaymentOrderRepository,
     private val springDataJpaPaymentOrderHistoryRepository: SpringDataJpaPaymentOrderHistoryRepository,
     private val springDataJpaPaymentEventRepository: SpringDataJpaPaymentEventRepository,
+    private val springDataJpaOutBoxRepository: SpringDataJpaOutBoxRepository,
+    private val applicationEventPublisher: ApplicationEventPublisher,
+    private val jpaPaymentOrderMapper: JpaPaymentOrderMapper
 ) : PaymentOrderRepository {
 
     @Transactional
@@ -42,6 +52,11 @@ class JpaPaymentOrderRepository(
         val totalAmount = springDataJpaPaymentOrderRepository.selectPaymentOrderTotalAmount(orderId)
         if (totalAmount != amount)
             throw PaymentValidationException("결제 (orderId: ${orderId}) 에서 금액 (amount: $amount)이 올바르지 않습니다.")
+    }
+
+    override fun getPaymentOrders(orderId: String): List<PaymentOrder> {
+        return springDataJpaPaymentOrderRepository.findByOrderId(orderId)
+            .map { jpaPaymentOrderMapper.mapToDomainEntity(it) }
     }
 
     private fun insertPaymentOrderHistories(
@@ -94,8 +109,30 @@ class JpaPaymentOrderRepository(
             type = command.extraDetails.type,
             orderId = command.orderId
         )
+        val paymentEventMessage = createPaymentMessage(command)
+        insertOutbox(paymentEventMessage)
+        applicationEventPublisher.publishEvent(paymentEventMessage)
     }
 
+    private fun insertOutbox(paymentEventMessage: PaymentEventMessage) {
+        val jpaOutBoxEntity = JpaOutBoxEntity(
+            idempotencyKey = paymentEventMessage.payload["orderId"] as String,
+            partitionKey = 0,
+            type = paymentEventMessage.type.name,
+            payload = objectMapper.writeValueAsString(paymentEventMessage.payload),
+            metadata = objectMapper.writeValueAsString(paymentEventMessage.metadata)
+        )
+        springDataJpaOutBoxRepository.save(jpaOutBoxEntity)
+    }
+
+    private fun createPaymentMessage(command: PaymentStatusUpdateCommand): PaymentEventMessage {
+        return PaymentEventMessage(
+            type = PaymentEventMessageType.PAYMENT_CONFIRMATION_SUCCESS,
+            payload = mapOf(
+                "orderId" to command.orderId
+            ),
+        )
+    }
     private fun updatePaymentStatusToFailure(command: PaymentStatusUpdateCommand) {
         val orderIdWithStatusList = springDataJpaPaymentOrderRepository.selectPaymentOrderStatus(command.orderId)
         insertPaymentOrderHistories(orderIdWithStatusList, command.status, command.failure.toString())
@@ -125,4 +162,6 @@ interface SpringDataJpaPaymentOrderRepository : JpaRepository<JpaPaymentOrderEnt
 
     @Query("SELECT SUM(e.amount) from JpaPaymentOrderEntity e WHERE e.orderId=:orderId")
     fun selectPaymentOrderTotalAmount(orderId: String): Long
+
+    fun findByOrderId(orderId: String): List<JpaPaymentOrderEntity>
 }

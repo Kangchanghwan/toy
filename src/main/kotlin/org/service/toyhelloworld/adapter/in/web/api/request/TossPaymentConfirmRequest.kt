@@ -1,4 +1,4 @@
-package org.service.toyhelloworld.adapter.`in`.request
+package org.service.toyhelloworld.adapter.`in`.web.api.request
 
 data class TossPaymentConfirmRequest(
     val paymentKey: String,

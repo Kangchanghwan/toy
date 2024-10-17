@@ -5,7 +5,7 @@ enum class PaymentMethod(val method: String) {
 
     companion object {
         fun get(method: String): PaymentMethod {
-            return entries.find { it.name == method }
+            return entries.find { it.method == method }
                 ?: error("PaymentMethod (Method: $method) 은 올바르지 않은 메소드입니다..)")
         }
     }

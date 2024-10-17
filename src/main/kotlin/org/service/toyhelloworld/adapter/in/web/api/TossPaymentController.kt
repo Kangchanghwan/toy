@@ -1,7 +1,7 @@
 package org.service.toyhelloworld.adapter.`in`.web.api
 
 import ApiResponse
-import org.service.toyhelloworld.adapter.`in`.request.TossPaymentConfirmRequest
+import org.service.toyhelloworld.adapter.`in`.web.api.request.TossPaymentConfirmRequest
 import org.service.toyhelloworld.application.port.`in`.PaymentConfirmCommand
 import org.service.toyhelloworld.application.port.`in`.PaymentConfirmUseCase
 import org.service.toyhelloworld.common.WebAdapter

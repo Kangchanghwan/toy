@@ -1,13 +1,13 @@
 package org.service.toyhelloworld.domain.payment
 
-data class PaymentOrder(
+class PaymentOrder(
     val id: Long? = null,
     val paymentEventId: Long? = null,
     val sellerId: Long,
-    val productId: Long,
+    val productId: Long? = null,
     val orderId: String,
     val amount: Long,
-    val paymentStatus: PaymentStatus,
+    val paymentStatus: PaymentStatus? = null,
     private var isLegerUpdated: Boolean = false,
     private var isWalletUpdated: Boolean = false
 ){

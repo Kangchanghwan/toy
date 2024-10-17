@@ -34,7 +34,7 @@ class JdbcPaymentDatabaseHelper(
             buyerId = rs.getLong("buyer_id"),
             paymentKey = rs.getString("payment_key"),
             paymentType = rs.getString("type")?.let { PaymentType.get(it) },
-            paymentMethod = rs.getString("method")?.let { PaymentMethod.get(it) },
+            paymentMethod = rs.getString("method")?.let { PaymentMethod.valueOf(it) },
             approvedAt = rs.getTimestamp("approved_at")?.toLocalDateTime(),
             isPaymentDone = rs.getByte("is_payment_done").toInt() == 1,
             paymentOrders = jdbcTemplate.query(SELECT_PAYMENT_ORDER_QUERY, paymentOrderRowMapper(), orderId)

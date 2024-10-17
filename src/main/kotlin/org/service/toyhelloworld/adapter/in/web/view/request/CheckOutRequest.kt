@@ -1,4 +1,4 @@
-package org.service.toyhelloworld.adapter.`in`.request
+package org.service.toyhelloworld.adapter.`in`.web.view.request
 
 import java.time.LocalDateTime
 

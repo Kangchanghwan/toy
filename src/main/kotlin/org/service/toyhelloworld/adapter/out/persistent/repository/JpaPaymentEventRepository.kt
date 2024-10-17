@@ -48,9 +48,9 @@ class JpaPaymentEventRepository(
                 paymentEvent = paymentEventEntity,
                 sellerId = paymentOrder.sellerId,
                 orderId = paymentOrder.orderId,
-                productId = paymentOrder.productId,
+                productId = paymentOrder.productId!!,
                 amount = paymentOrder.amount.toBigDecimal(),
-                paymentOrderStatus = paymentOrder.paymentStatus
+                paymentOrderStatus = paymentOrder.paymentStatus!!
             )
         }
     }
